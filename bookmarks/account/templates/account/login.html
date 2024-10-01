@@ -4,10 +4,12 @@
 
 {% block content %}
     <h1>Log-in</h1>
-    <p>Please, use the following form to log-in:</p>
+    <p>Please, use the following form to log-in:sfdasda</p>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.as_p }}sfdfdsasfsd
         <p><input type="submit" value="Log in"></p>
     </form>
+ssf
+    <a href="{% url 'password_reset' %}">Forgotten your password?</a>
 {% endblock %}
