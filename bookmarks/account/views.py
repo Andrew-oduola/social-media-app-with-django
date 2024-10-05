@@ -3,13 +3,14 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages 
-
+from django.conf import settings
 from .models import Profile
 from .forms import LoginForm, UserRegistrationForm, \
                     UserEditForm, ProfileEditForm
 
 # Create your views here.
 def user_login(request):
+    print(settings.SOCIAL_AUTH_TWITTER_KEY)
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
@@ -29,10 +30,14 @@ def user_login(request):
 
     else:
         form = LoginForm()
+        print(settings.SOCIAL_AUTH_TWITTER_KEY)
+
+    print(settings.SOCIAL_AUTH_TWITTER_KEY)
     return render(request, 'account/login.html', {'form': form})    
 
 @login_required
 def dashboard(request):
+    print(settings.SOCIAL_AUTH_TWITTER_KEY)
     return render(request, 
                   'account/dashboard.html',
                   {'section': 'dashboard'})
