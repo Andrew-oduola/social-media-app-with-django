@@ -9,6 +9,8 @@ from django.conf import settings
 from .models import Profile, Contact
 from .forms import LoginForm, UserRegistrationForm, \
                     UserEditForm, ProfileEditForm
+from actions.utils import create_action
+from actions.models import Action
 
 # Create your views here.
 def user_login(request):
@@ -39,10 +41,18 @@ def user_login(request):
 
 @login_required
 def dashboard(request):
-    print(settings.SOCIAL_AUTH_TWITTER_KEY)
+    actions = Action.objects.exclude(user=request.user)
+    following_ids = request.user.following.values_list('id',
+                                                       flat=True)
+    if following_ids:
+        actions = actions.filter(user_id__in=following_ids)
+    actions = actions.select_related('user', 'user__profile')\
+        .prefetch_related('target')[:10]
+    print(actions)
     return render(request, 
                   'account/dashboard.html',
-                  {'section': 'dashboard'})
+                  {'section': 'dashboard',
+                   'actions': actions})
 
 def register(request):
     if request.method == 'POST':
@@ -54,6 +64,7 @@ def register(request):
             )
             new_user.save()
             Profile.objects.create(user=new_user)
+            create_action(new_user, 'has created an account')
             messages.success(request, 'User registered successfully')
             return render(request,
                           'account/register_done.html',
@@ -120,6 +131,7 @@ def user_follow(request):
                     user_from=request.user,
                     user_to=user
                 )
+                create_action(request.user, 'is following', user)
             else:
                 Contact.objects.filter(user_from=request.user,
                                        user_to=user).delete()
